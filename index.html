@@ -60,15 +60,13 @@ body{
 </div>
 
 <script>
+const targetDate = new Date("2026-03-31T12:00:00").getTime();
 
-const targetDate = new Date("Mar 31, 2026 12:00:00").getTime();
-
-let audioContext;
-let started = false;
-let timerInterval;
+let audioContext = null;
+let soundEnabled = false;
 
 function beep() {
-    if (!audioContext) return;
+    if (!soundEnabled || !audioContext) return;
 
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
@@ -80,18 +78,17 @@ function beep() {
     oscillator.type = "square";
 
     gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
 
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.05);
 }
 
-function updateCountdown(){
-
+function updateCountdown() {
     const now = new Date().getTime();
     const distance = targetDate - now;
 
-    if(distance <= 0){
-        clearInterval(timerInterval);
+    if (distance <= 0) {
         document.getElementById("days").innerText = 0;
         document.getElementById("hours").innerText = 0;
         document.getElementById("minutes").innerText = 0;
@@ -112,17 +109,16 @@ function updateCountdown(){
     beep();
 }
 
-document.body.addEventListener("click", function startTimer(){
-    if(started) return;
+document.body.addEventListener("click", function () {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
 
-    started = true;
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    soundEnabled = true;
+}, { once: true });
 
-    timerInterval = setInterval(updateCountdown,1000);
-    updateCountdown();
-
-}, { once:true });
-
+updateCountdown();
+setInterval(updateCountdown, 1000);
 </script>
 
 </body>
