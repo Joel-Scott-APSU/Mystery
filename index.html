@@ -66,6 +66,7 @@ let audioContext = null;
 let soundEnabled = false;
 
 function beep() {
+
     if (!soundEnabled || !audioContext) return;
 
     const oscillator = audioContext.createOscillator();
@@ -78,12 +79,10 @@ function beep() {
     oscillator.type = "square";
 
     gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
 
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.05);
 }
-
 function updateCountdown() {
     const now = new Date().getTime();
     const distance = targetDate - now;
